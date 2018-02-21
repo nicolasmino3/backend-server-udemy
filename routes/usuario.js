@@ -13,7 +13,12 @@ var Usuario = require("../models/usuario");
 // Obtiene todos los usaurios
 // ============================================
 app.get("/", (req, res, next) => {
+  var desde = req.query.desde || 0;
+  desde = Number(desde);
+
   Usuario.find({}, "nombre email img role")
+  .skip(desde)
+  .limit(5)
   .exec((err, usuarios) => {
     if (err) {
       return res.status(500).json({
@@ -22,10 +27,15 @@ app.get("/", (req, res, next) => {
         errors: err
       });
     }
-    res.status(200).json({
-      ok: true,
-      usuarios: usuarios     
+    Usuario.count((err,conteo) => {
+      res.status(200).json({
+        ok: true,
+        usuarios: usuarios,
+        total: conteo    
+      });
+
     });
+    
   });
 });
 
@@ -80,7 +90,6 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
     var body = req.body;
 
     Usuario.findById(id, (err, usuario) => {
-
 
         if (err) {
             return res.status(500).json({
@@ -161,6 +170,7 @@ app.post("/", mdAutenticacion.verificarToken, (req, res) => {
 // ============================================
 
 app.delete('/:id', mdAutenticacion.verificarToken, ( req, res ) => {
+  
     var id = req.params.id;
 
     Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {

@@ -15,7 +15,7 @@ module.exports.verificarToken = function(req,res,next) {
               errors: err
             });
           }
-          req.usuarioToken = decoded.usuario;
+          req.usuario = decoded.usuario;
           
           next();
     })
